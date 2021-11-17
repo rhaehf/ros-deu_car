@@ -12,6 +12,7 @@ class Detect_blockbar:
     def __init__(self):
 
         self.bridge = cv_bridge.CvBridge()
+        cv2.namedWindow("window", 1)
         self.bar_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)
         self.cmd_vel_pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size=1)
         self.bar_pub = rospy.Publisher('camera/rgb/image_raw/p2_bar', Image, queue_size=1)
@@ -42,10 +43,13 @@ class Detect_blockbar:
             self.twist.linear.x = 0.0
  #           rospy.loginfo('wait!!!')
         else:
-             self.cmd_vel_pub.publish(self.twist)
-             bar_image_msg = self.twist.linear.x = 0.8
-             self.bridge.cv2_to_imgmsg(image, 'bgr8')
-             self.bar_pub.publish(bar_image_msg)
+            self.twist.linear.x = 0.8
+
+        self.cmd_vel_pub.publish(self.twist)
+        bar_image_msg = self.bridge.cv2_to_imgmsg(image, 'bgr8')
+        self.bar_pub.publish(bar_image_msg)
+        cv2.imshow("window", img_mask)
+        cv2.waitKey(3)
 
 
 def main():
