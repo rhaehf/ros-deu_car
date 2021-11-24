@@ -61,8 +61,8 @@ class StopLine:  #Detect Stopline
         self.cmd_vel_pub.publish(self.twist)
         stopline_image_msg = self.bridge.cv2_to_imgmsg(stopline_image, 'bgr8')
         self.stopline_image_pub.publish(stopline_image_msg)  # publish
-        print('nextdostop = %r' % self.next_dostop)
-        print('stoplinecount = %d' % self.stoplinecount)
+        print('next_dostop = %r' % self.next_dostop)
+        print('stopline_count = %d' % self.stopline_count)
         # cv2.imshow("stopline_window", stopline_image)
         # cv2.waitKey(3)
 
