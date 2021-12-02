@@ -10,7 +10,6 @@ from sensor_msgs.msg import Image
 
 class Detect_blockbar:
     def __init__(self):
-
         self.bridge = cv_bridge.CvBridge()
         cv2.namedWindow("window", 1)
         self.bar_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)

@@ -8,12 +8,12 @@ from geometry_msgs.msg import Twist
 
 class StopLine:  #Detect Stopline
 
-
     def __init__(self):  # creator Detector
         self.bridge = cv_bridge.CvBridge()
         cv2.namedWindow("window", 1)
         self.image_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)
         self.cmd_vel_pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size=1)
+        self.stopline_image_pub = rospy.Publisher('camera/rgb/image_raw/stopline', Image, queue_size=1)  # detect stopline
         self.twist = Twist()
         self.stoplinecount = 0
         self.nextdostop = True
@@ -23,8 +23,6 @@ class StopLine:  #Detect Stopline
         hsv = cv2.cvtColor(stoplineimage, cv2.COLOR_BGR2HSV)
         lower_white = numpy.array([0, 0, 225])
         upper_white = numpy.array([10, 10, 235])
-        # lower_yellow = numpy.array([10, 10, 10])
-        # upper_yellow = numpy.array([255, 255, 250])
         stoplinemask = cv2.inRange(hsv, lower_white, upper_white)
 
         h, w, d = stoplineimage.shape # h, w, d = 480, 640, 3
@@ -60,6 +58,8 @@ class StopLine:  #Detect Stopline
             self.twist.linear.x = 0.8
 
         self.cmd_vel_pub.publish(self.twist)
+        stoplineimage_msg = self.bridge.cv2_to_imgmsg(stoplineimage, 'bgr8')
+        self.stopline_image_pub.publish(stoplineimage_msg)  # publish
         print('nextdostop = %r' % self.nextdostop)
         print('stoplinecount = %d' % self.stoplinecount)
         cv2.imshow("window", stoplineimage)
