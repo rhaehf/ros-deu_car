@@ -10,7 +10,7 @@ class StopLine:  # Detect Stopline
 
     def __init__(self):  # creator Detector
         self.bridge = cv_bridge.CvBridge()
-        cv2.namedWindow("stopline_window", 1)
+        # cv2.namedWindow("stopline_window", 1)
         self.image_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)
         self.cmd_vel_pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size=1)
         self.stopline_image_pub = rospy.Publisher('camera/rgb/image_raw/stopline', Image,
@@ -71,8 +71,8 @@ class StopLine:  # Detect Stopline
         self.stopline_image_pub.publish(stopline_image_msg)  # publish
         print('next_dostop = %r' % self.next_dostop)
         print('stopline_count = %d' % self.stopline_count)
-        cv2.imshow("stopline_window", stopline_image)
-        cv2.waitKey(1)
+        # cv2.imshow("stopline_window", stopline_image)
+        # cv2.waitKey(1)
 
 
 class Detect_blockbar:
@@ -116,7 +116,7 @@ class Detect_blockbar:
 class Right_YellowLine:  # Detect Stopline
     def __init__(self):  # creator Detector
         self.bridge = cv_bridge.CvBridge()
-        cv2.namedWindow("stopline_window", 1)
+        # cv2.namedWindow("stopline_window", 1)
         self.image_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)
         self.cmd_vel_pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size=1)
         self.twist = Twist()
@@ -172,13 +172,13 @@ class Right_YellowLine:  # Detect Stopline
                 print('no detect Left Whiteline!')
                 err = cx - w / 2  # cx - 320
                 self.twist.linear.x = 0.8
-                self.twist.angular.z = -float(err) / 50
+                self.twist.angular.z = -float(err) / 40
         else:
             print('no detect Right Yellowline!')
 
         self.cmd_vel_pub.publish(self.twist)
-        cv2.imshow("stopline_window", yellowline_image)
-        cv2.waitKey(1)
+        # cv2.imshow("stopline_window", yellowline_image)
+        # cv2.waitKey(1)
 
 
 def main():
