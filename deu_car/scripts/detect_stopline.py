@@ -35,8 +35,8 @@ class StopLine:  #Detect Stopline
         stoplinemask[0:h, (w / 2 + 20):w] = 0
         M = cv2.moments(stoplinemask)  # stopline mask
 
-        if M['m00'] > 0:  # fisrt detect
-            print('find stopline!')
+        if M['m00'] > 0:
+            # print('find stopline!')
             if self.nextdostop: # = True
                 cx = int(M['m10'] / M['m00'])
                 cy = int(M['m01'] / M['m00'])
@@ -46,21 +46,21 @@ class StopLine:  #Detect Stopline
                 rospy.sleep(3)
                 self.nextdostop = False
                 self.stoplinecount += 1
-
+                print('stop!')
             else: # self.dostop = False
                 cx = int(M['m10'] / M['m00'])
                 cy = int(M['m01'] / M['m00'])
                 cv2.circle(stoplineimage, (cx, cy), 20, (0, 0, 255), -1)
                 self.twist.linear.x = 0.8
         else:
-            print('no detect!')
             self.nextdostop = True
             self.twist.linear.x = 0.8
+            print('no detect stop line!')
 
         self.cmd_vel_pub.publish(self.twist)
         stoplineimage_msg = self.bridge.cv2_to_imgmsg(stoplineimage, 'bgr8')
         self.stopline_image_pub.publish(stoplineimage_msg)  # publish
-        print('nextdostop = %r' % self.nextdostop)
+        # print('nextdostop = %r' % self.nextdostop)
         print('stoplinecount = %d' % self.stoplinecount)
         cv2.imshow("window", stoplineimage)
         cv2.waitKey(3)

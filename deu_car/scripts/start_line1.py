@@ -38,7 +38,7 @@ class StopLine:  # Detect Stopline
         M = cv2.moments(mask_stopline)  # stopline mask
 
         if M['m00'] > 0:
-            print('find stopline!')
+            # print('find stopline!')
             if self.next_dostop:  # = True
                 if self.stopline_count == 3:
                     cx = int(M['m10'] / M['m00'])
@@ -55,6 +55,7 @@ class StopLine:  # Detect Stopline
                     rospy.sleep(3)
                     self.next_dostop = False
                     self.stopline_count += 1
+                    print('stop!')
 
             else:  # self.next_dostop = False
                 cx = int(M['m10'] / M['m00'])
@@ -62,14 +63,14 @@ class StopLine:  # Detect Stopline
                 cv2.circle(stopline_image, (cx, cy), 20, (0, 0, 255), -1)
                 self.twist.linear.x = 0.8
         else:
-            print('no detect!')
             self.next_dostop = True
             self.twist.linear.x = 0.8
+            # print('no detect stop line!')
 
         self.cmd_vel_pub.publish(self.twist)
         stopline_image_msg = self.bridge.cv2_to_imgmsg(stopline_image, 'bgr8')
         self.stopline_image_pub.publish(stopline_image_msg)  # publish
-        print('next_dostop = %r' % self.next_dostop)
+        # print('next_dostop = %r' % self.next_dostop)
         print('stopline_count = %d' % self.stopline_count)
         # cv2.imshow("stopline_window", stopline_image)
         # cv2.waitKey(1)
@@ -100,12 +101,15 @@ class Detect_blockbar:
 
         M = cv2.moments(img_mask)
         if M['m00'] > 0:
+            print('blocking bar @@@@')
             cx = int(M['m10'] / M['m00'])
             cy = int(M['m01'] / M['m00'])
             cv2.circle(image, (cx, cy), 10, (255, 0, 0), -1)
             self.twist.linear.x = 0.0
         else:
             self.twist.linear.x = 0.8
+            print('GO')
+
         self.cmd_vel_pub.publish(self.twist)
         bar_image_msg = self.bridge.cv2_to_imgmsg(image, 'bgr8')
         self.bar_pub.publish(bar_image_msg)
@@ -113,7 +117,7 @@ class Detect_blockbar:
         # cv2.waitKey(1)
 
 
-class Right_YellowLine:  # Detect Stopline
+class Right_YellowLine:
     def __init__(self):  # creator Detector
         self.bridge = cv_bridge.CvBridge()
         # cv2.namedWindow("stopline_window", 1)
@@ -146,21 +150,20 @@ class Right_YellowLine:  # Detect Stopline
         mask_whiteline[0:h - 40, 0:w] = 0
         mask_whiteline[h - 20:h, 0:w] = 0
         mask_whiteline[h - 40:h - 20, 20:w] = 0
-        M_white = cv2.moments(mask_whiteline)  # stopline mask
+        M_white = cv2.moments(mask_whiteline)  # left white line mask
 
         if M_yellow['m00'] > 0:
-            print('find Right Yellowline!')
+            print('find Right Yellowline!!!!')
             cx_yellow = int(M_yellow['m10'] / M_yellow['m00'])
             cy_yellow = int(M_yellow['m01'] / M_yellow['m00'])
             # print('cx_yellow : ', cx_yellow, 'cy_yellow : ', cy_yellow)
 
             cx = (cx_yellow + cx_yellow - 350) // 2
-            print('cx : ', cx)
+            # print('cx : ', cx)
 
             cv2.circle(yellowline_image, (cx_yellow, cy_yellow), 10, (255, 0, 0), -1)
 
             if M_white['m00'] > 0:
-                print('find Left Whiteline!')
                 cx_white = int(M_white['m10'] / M_white['m00'])
                 cy_white = int(M_white['m01'] / M_white['m00'])
                 # print('cx_white : ', cx_white, 'cy_white : ', cy_white)
@@ -168,13 +171,15 @@ class Right_YellowLine:  # Detect Stopline
                 cv2.circle(yellowline_image, (cx_white, cy_white), 10, (0, 255, 0), -1)
 
                 self.twist.linear.x = 0.8
+                print('find Left Whiteline @@@')
             else:
-                print('no detect Left Whiteline!')
                 err = cx - w / 2  # cx - 320
                 self.twist.linear.x = 0.8
                 self.twist.angular.z = -float(err) / 40
-        else:
-            print('no detect Right Yellowline!')
+                print(-float(err) / 40)
+                # print('no detect Left Whiteline $$$')
+        # else:
+            # print('no detect Right Yellowline!')
 
         self.cmd_vel_pub.publish(self.twist)
         # cv2.imshow("stopline_window", yellowline_image)

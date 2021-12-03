@@ -6,10 +6,10 @@ import rospy
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
 
-class Right_YellowLine:  # Detect Stopline
+class Right_YellowLine:
     def __init__(self):  # creator Detector
         self.bridge = cv_bridge.CvBridge()
-        cv2.namedWindow("stopline_window", 1)
+        cv2.namedWindow("window", 1)
         self.image_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)
         self.cmd_vel_pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size=1)
         self.twist = Twist()
@@ -39,21 +39,20 @@ class Right_YellowLine:  # Detect Stopline
         mask_whiteline[0:h - 40, 0:w] = 0
         mask_whiteline[h - 20:h, 0:w] = 0
         mask_whiteline[h - 40:h - 20, 20:w] = 0
-        M_white = cv2.moments(mask_whiteline)  # stopline mask
+        M_white = cv2.moments(mask_whiteline)  # left white line mask
 
         if M_yellow['m00'] > 0:
-            print('find Right Yellowline!')
+            print('find Right Yellowline!!!!')
             cx_yellow = int(M_yellow['m10'] / M_yellow['m00'])
             cy_yellow = int(M_yellow['m01'] / M_yellow['m00'])
             # print('cx_yellow : ', cx_yellow, 'cy_yellow : ', cy_yellow)
 
             cx = (cx_yellow + cx_yellow - 350) // 2
-            print('cx : ', cx)
+            # print('cx : ', cx)
 
             cv2.circle(yellowline_image, (cx_yellow, cy_yellow), 10, (255, 0, 0), -1)
 
             if M_white['m00'] > 0:
-                print('find Left Whiteline!')
                 cx_white = int(M_white['m10'] / M_white['m00'])
                 cy_white = int(M_white['m01'] / M_white['m00'])
                 # print('cx_white : ', cx_white, 'cy_white : ', cy_white)
@@ -61,16 +60,17 @@ class Right_YellowLine:  # Detect Stopline
                 cv2.circle(yellowline_image, (cx_white, cy_white), 10, (0, 255, 0), -1)
 
                 self.twist.linear.x = 0.8
+                print('find Left Whiteline @@@')
             else:
-                print('no detect Left Whiteline!')
                 err = cx - w / 2  # cx - 320
                 self.twist.linear.x = 0.8
-                self.twist.angular.z = -float(err) / 50
-        else:
-            print('no detect Right Yellowline!')
+                self.twist.angular.z = -float(err) / 40
+                print('no detect Left Whiteline $$$')
+        # else:
+        #     print('no detect Right Yellowline!')
 
         self.cmd_vel_pub.publish(self.twist)
-        cv2.imshow("stopline_window", yellowline_image)
+        cv2.imshow("window", yellowline_image)
         cv2.waitKey(1)
 
 
